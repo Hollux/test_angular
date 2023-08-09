@@ -1,0 +1,110 @@
+<h2 class="text-2xl font-semibold mt-4">Bataille (solo)</h2>
+
+<div class="solo_historique flex mt-2">
+    <div class="overflow-y-auto p-2 border w-full" [ngClass]="{'h-64 max-h-64': isHistoriqueExpanded }">
+        <p *ngIf="historique.length > 0 && !isHistoriqueExpanded">{{ historique[historique.length - 1] }}</p>
+
+        <div *ngIf="isHistoriqueExpanded">
+            <div *ngFor="let histo of historique.slice().reverse()">
+                <p>{{ histo }}</p>
+            </div>
+        </div>
+    </div>
+    <button *ngIf="isHistoriqueExpanded" (click)="toggleHistorique()"
+        class="right-0 h-10 w-10 bg-[#0f0f10] text-white rounded">
+        <i class="fa fa-chevron-up" aria-hidden="true"></i>
+    </button>
+    <button *ngIf="!isHistoriqueExpanded" (click)="toggleHistorique()"
+        class="right-0 h-10 w-10 bg-[#0f0f10] text-white rounded">
+        <i class="fa fa-chevron-down" aria-hidden="true"></i>
+    </button>
+</div>
+
+<div class="flex mt-4 justify-around">
+    <div class="btns">
+        <button *ngIf="step !== 3" [ngClass]="{'opacity-50': cardGameState.activeCardsPlayers['p1'] !== null }"
+            class="bg-[#ef4444] text-white px-4 py-2 rounded mr-1" (click)="play()"
+            [disabled]="cardGameState.activeCardsPlayers['p1'] !== null || step === 3">
+            Choisir une carte
+        </button>
+        <button *ngIf="step === 1" [ngClass]="{'opacity-50': cardGameState.activeCardsPlayers['p1'] !== null }"
+            class="bg-[#ef4444] text-white px-4 py-2 rounded" (click)="speedStepOne()"
+            [disabled]="cardGameState.activeCardsPlayers['p1'] !== null"
+            title="Joue rapidement toutes les cartes de base">
+            Speed partie 1
+        </button>
+        <button *ngIf="step === 2" [ngClass]="{'opacity-50': cardGameState.activeCardsPlayers['p1'] !== null }"
+            class="bg-[#ef4444] text-white px-4 py-2 rounded" (click)="speedStepTwo()"
+            [disabled]="cardGameState.activeCardsPlayers['p1'] !== null" title="Joue rapidement 50 cartes">
+            Speed partie 2
+        </button>
+
+        <button *ngIf="step === 3" [ngClass]="{'opacity-50': cardGameState.activeCardsPlayers['p1'] !== null }"
+            class="bg-[#ef4444] text-white px-4 py-2 rounded" (click)="reloadGame()"
+            [disabled]="cardGameState.activeCardsPlayers['p1'] !== null">
+            Relancer la partie
+        </button>
+    </div>
+
+    <div class="flex ml-4">
+        <span class="mr-1 my-auto">Vitesse :</span>
+        <button [ngClass]="{'bg-[#0f0f10] text-white hover:bg-gray-500': speed == 500 }" (click)="changeSpeed(500)"
+            class="px-4 py-2 border border-gray-300 rounded-l-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">0,5s</button>
+        <button [ngClass]="{'bg-[#0f0f10] text-white hover:bg-gray-500': speed == 1000 }" (click)="changeSpeed(1000)"
+            class="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">1s</button>
+        <button [ngClass]="{'bg-[#0f0f10] text-white hover:bg-gray-500': speed == 2000 }" (click)="changeSpeed(2000)"
+            class="px-4 py-2 border border-gray-300 rounded-r-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">3s</button>
+    </div>
+</div>
+
+
+<div class="flex justify-around mt-6">
+    <div class="w-1/2" *ngFor="let player of [cardGameState.p1, cardGameState.p2]">
+        <header class="text-center">
+            <h3 class="text-xl font-semibold my-0.25 mx-auto">{{ player === 'p1' ? 'Vos cartes' : 'Cartes de
+                l\'ordinateur' }} : {{
+                cardGameState.cardsPlayers[player].length }} </h3>
+        </header>
+        <div *ngIf="cardGameState.activeCardsPlayers[player] !== null" class="flex justify-center items-center h-20">
+
+            <div [ngClass]="{
+                    'text-red-500': cardGameState.activeCardsPlayers[player]?.symbol === 'Coeur' || cardGameState.activeCardsPlayers[player]?.symbol === 'Carreau',
+                }" class="p-4 m-2 flex flex-wrap justify-between border border-black rounded" style="width: 150px">
+                <p>{{ cardGameState.activeCardsPlayers[player]?.label }}</p>
+                <p>
+                    <span *ngIf="cardGameState.activeCardsPlayers[player]?.symbol === 'Coeur'">&hearts;</span>
+                    <span *ngIf="cardGameState.activeCardsPlayers[player]?.symbol === 'Carreau'">&diams;</span>
+                    <span *ngIf="cardGameState.activeCardsPlayers[player]?.symbol === 'Trèfle'">&clubs;</span>
+                    <span *ngIf="cardGameState.activeCardsPlayers[player]?.symbol === 'Pique'">&spades;</span>
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+<br>
+
+<button class="bg-[#0f0f10] text-white px-4 py-2 rounded mr-1" (click)="togglePlayersCards()">
+    {{ showPlayersCards ? 'Cacher les ' : 'Afficher les ' }} cartes des joueurs
+</button>
+
+<div class="flex justify-center items-start" [ngClass]="showPlayersCards ? '' : 'hidden'">
+    <div class="w-1/2 flex flex-wrap" *ngFor="let player of [cardGameState.p1, cardGameState.p2]">
+        <ng-container *ngIf="cardGameState.cardsPlayers[player] !== null">
+            <div *ngFor="let card of cardGameState.cardsPlayers[player]" class="flex w-[100px] h-[60px]">
+                <div [ngClass]="{
+                                    'text-red-500': card.symbol === 'Coeur' || card.symbol === 'Carreau',
+                                }" class="p-3 m-1 flex flex-wrap justify-between border border-black rounded"
+                    style="width: 150px">
+                    <p>{{ card.label }}</p>
+                    <p>
+                        <span *ngIf="card.symbol === 'Coeur'">&hearts;</span>
+                        <span *ngIf="card.symbol === 'Carreau'">&diams;</span>
+                        <span *ngIf="card.symbol === 'Trèfle'">&clubs;</span>
+                        <span *ngIf="card.symbol === 'Pique'">&spades;</span>
+                    </p>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

@@ -6,6 +6,8 @@ Actuellement utilisable en version solo contre l'ordinateur.
 
 Un jour peut-être en version multi joueur en ligne.
 
+Le site est accessible à l'url https://card.hollux.fr
+
 ## informations de lancement :
 
 ## Development server
